@@ -52,7 +52,9 @@
     .homework-card h4 { margin-bottom: .5rem; }
     .homework-meta { font-size: .9rem; color: var(--text-muted); margin-bottom: .5rem; }
     .homework-images { display: flex; flex-wrap: wrap; gap: .5rem; margin: .5rem 0; }
+    .homework-images .image-wrapper { position: relative; }
     .homework-images img { max-width: 120px; border-radius: 8px; }
+    .more-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border-radius: 8px; }
 
     .form-card { background: var(--card); padding: 1.5rem; border-radius: 12px; margin-top: 2rem; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
     .form-group { margin-bottom: 1rem; }
@@ -72,7 +74,6 @@
 
     /* Footer */
     .footer { background: var(--card); padding: 1rem; text-align: center; font-size: .9rem; color: var(--text-muted); margin-top: auto; }
-    .footer a { color: var(--accent); text-decoration: none; }
 
     /* Responsive */
     @media(max-width:768px){
@@ -138,7 +139,7 @@
 
   <!-- Footer -->
   <footer class="footer">
-    Made by Deep Pathak | <a href="#">T3_Base</a>
+    Homework Manager © T3_Base — Everyone can view & upload homework
   </footer>
 
   <!-- Script -->
@@ -187,7 +188,22 @@
       valid.forEach(hw => {
         const card = document.createElement("div");
         card.className = "homework-card";
-        const imagesHTML = hw.images.map(src => `<img src="${src}" />`).join("");
+
+        let imagesHTML = "";
+        if (hw.images && hw.images.length > 0) {
+          hw.images.slice(0,4).forEach((src, i) => {
+            if (i === 3 && hw.images.length > 4) {
+              imagesHTML += `
+                <div class="image-wrapper">
+                  <img src="${src}" />
+                  <div class="more-overlay">+${hw.images.length - 3} more</div>
+                </div>`;
+            } else {
+              imagesHTML += `<div class="image-wrapper"><img src="${src}" /></div>`;
+            }
+          });
+        }
+
         card.innerHTML = `
           <h4>${hw.subject}</h4>
           <div class="homework-meta">By ${hw.teacher} | Due: ${hw.dueDate}</div>
