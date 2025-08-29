@@ -1,252 +1,405 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>T3_Base - Homework Manager</title>
-
-  <!-- Styles -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
   <style>
-    :root {
-      --bg-dark: #1e1e1e;
-      --bg-light: #f8f9fa;
-      --card-dark: #2b2b2b;
-      --card-light: #ffffff;
-      --text-dark: #f0f0f0;
-      --text-light: #222;
-      --text-muted: #888;
-      --accent: #3a86ff;
+    :root{
+      --bg-dark:#121216; --bg-light:#f4f6f8;
+      --card-dark:#17171a; --card-light:#ffffff;
+      --text-dark:#eaeaea; --text-light:#111827;
+      --muted:#9aa1ab; --accent:#2563eb; /* blue */
     }
-
     [data-theme="dark"] {
-      --bg: var(--bg-dark);
-      --card: var(--card-dark);
-      --text: var(--text-dark);
+      --bg:var(--bg-dark); --card:var(--card-dark); --text:var(--text-dark);
     }
     [data-theme="light"] {
-      --bg: var(--bg-light);
-      --card: var(--card-light);
-      --text: var(--text-light);
+      --bg:var(--bg-light); --card:var(--card-light); --text:var(--text-light);
     }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Inter", sans-serif; }
-    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; transition: background 0.3s, color 0.3s; }
-
-    /* Navbar */
-    .navbar { background: var(--card); padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,.2); position: sticky; top: 0; z-index: 10; }
-    .nav-container { display: flex; justify-content: space-between; align-items: center; max-width: 1100px; margin: auto; flex-wrap: wrap; }
-    .nav-brand { font-size: 1.3rem; font-weight: bold; display: flex; align-items: center; gap: .5rem; }
-    .nav-menu { display: flex; gap: 1rem; align-items: center; }
-    .nav-menu button { background: var(--accent); border: none; padding: .5rem 1rem; border-radius: 6px; cursor: pointer; color: white; font-weight: 500; transition: background 0.3s; }
-    .nav-menu button:hover { background: #2f5fcc; }
-
-    /* Content */
-    .main-content { flex: 1; max-width: 1100px; margin: auto; padding: 2rem 1rem; width: 100%; }
-    .page-title { font-size: 2rem; margin-bottom: .5rem; }
-    .page-subtitle { color: var(--text-muted); margin-bottom: 2rem; }
-
-    .homework-list { display: grid; gap: 1rem; }
-    .homework-card { background: var(--card); padding: 1.2rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.2); transition: transform 0.2s; }
-    .homework-card:hover { transform: translateY(-3px); }
-    .homework-card h4 { margin-bottom: .5rem; }
-    .homework-meta { font-size: .9rem; color: var(--text-muted); margin-bottom: .5rem; }
-    .homework-images { display: flex; flex-wrap: wrap; gap: .5rem; margin: .5rem 0; }
-    .homework-images .image-wrapper { position: relative; }
-    .homework-images img { max-width: 120px; border-radius: 8px; }
-    .more-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border-radius: 8px; }
-
-    .form-card { background: var(--card); padding: 1.5rem; border-radius: 12px; margin-top: 2rem; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
-    .form-group { margin-bottom: 1rem; }
-    .form-group label { display: block; margin-bottom: .3rem; font-size: .9rem; }
-    .form-group input, .form-group textarea, .form-group select { width: 100%; padding: .6rem; border-radius: 6px; border: 1px solid #ccc; background: transparent; color: inherit; transition: border 0.3s; }
-    .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); outline: none; }
-    .form-group textarea { resize: none; }
-    .button-group { display: flex; gap: 1rem; }
-    .button-group button { flex: 1; padding: .7rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; transition: opacity 0.3s; }
-    .submit-btn { background: var(--accent); color: white; }
-    .submit-btn:hover { opacity: 0.9; }
-    .clear-btn { background: #888; color: white; }
-    .clear-btn:hover { opacity: 0.9; }
-
-    .preview-container { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .5rem; }
-    .preview-container img { max-width: 120px; border-radius: 8px; }
-
-    /* Footer */
-    .footer { background: var(--card); padding: 1rem; text-align: center; font-size: .9rem; color: var(--text-muted); margin-top: auto; }
-
-    /* Responsive */
-    @media(max-width:768px){
-      .nav-container { flex-direction: column; gap: 1rem; align-items: flex-start; }
-      .button-group { flex-direction: column; }
-    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+    .navbar{background:var(--card);position:sticky;top:0;z-index:20;padding:14px 18px;box-shadow:0 1px 6px rgba(0,0,0,.15)}
+    .nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:700}
+    .brand i{font-size:20px}
+    .right-controls{display:flex;align-items:center;gap:8px}
+    .btn{background:var(--accent);color:#fff;padding:8px 12px;border-radius:8px;border:none;cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+    .ghost{background:transparent;border:1px solid rgba(255,255,255,.06);color:var(--text);padding:8px 10px;border-radius:8px}
+    main{max-width:1100px;margin:20px auto;padding:0 16px;flex:1;width:100%}
+    .hero{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .title{font-size:1.6rem;font-weight:700}
+    .subtitle{color:var(--muted);margin-top:6px}
+    .layout{display:grid;grid-template-columns:1fr 420px;gap:20px;margin-top:18px}
+    @media(max-width:980px){ .layout{grid-template-columns:1fr} }
+    /* Cards */
+    .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.15);}
+    .homework-list{display:grid;gap:12px}
+    .hw-card{display:flex;flex-direction:column;gap:8px}
+    .hw-meta{color:var(--muted);font-size:13px}
+    .hw-images{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+    .hw-images .img-wrap{position:relative;width:120px;height:84px;overflow:hidden;border-radius:8px;background:#222;display:flex;align-items:center;justify-content:center}
+    .hw-images img{width:100%;height:100%;object-fit:cover;display:block}
+    .more-overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+    .hw-desc{white-space:pre-wrap;color:var(--text);font-size:14px}
+    /* form */
+    .form .field{margin-bottom:10px}
+    label{display:block;margin-bottom:6px;color:var(--muted);font-size:13px}
+    input[type="text"],input[type="date"],textarea{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,.15);background:transparent;color:var(--text)}
+    textarea{min-height:92px;resize:vertical}
+    input[type=file]{display:block}
+    .preview-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .preview-row img{width:80px;height:56px;object-fit:cover;border-radius:6px}
+    /* upload progress */
+    .progress-wrap{margin-top:8px;background:rgba(0,0,0,.12);border-radius:8px;overflow:hidden;height:12px}
+    .progress-bar{height:100%;width:0%;background:var(--accent);transition:width .2s}
+    .progress-text{font-size:13px;color:var(--muted);margin-top:6px}
+    /* gallery modal */
+    .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:60}
+    .modal.open{display:flex}
+    .modal .modal-content{max-width:90vw;max-height:90vh;background:transparent;display:flex;align-items:center;justify-content:center}
+    .modal img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px}
+    footer{padding:14px;text-align:center;background:transparent;color:var(--muted);font-size:13px}
   </style>
+  <!-- Firebase SDKs -->
+  <script type="module">
+    // IMPORTANT: Replace firebaseConfig with your project's keys
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-app.js";
+    import {
+      getFirestore, collection, addDoc, doc, updateDoc, onSnapshot, serverTimestamp, deleteDoc, query, orderBy
+    } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-firestore.js";
+    import { getStorage, ref as stRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.24.0/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    // DOM refs
+    const themeToggle = () => {
+      const body = document.body;
+      const current = body.getAttribute('data-theme') || 'dark';
+      body.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    };
+
+    // Elements
+    document.addEventListener('DOMContentLoaded', () => {
+      // elements
+      const uploadToggleBtn = document.getElementById('uploadToggle');
+      const formContainer = document.getElementById('formContainer');
+      const homeworkForm = document.getElementById('homeworkForm');
+      const previewRow = document.getElementById('previewRow');
+      const inputFiles = document.getElementById('homeworkImages');
+      const hwList = document.getElementById('homeworkList');
+      const progressBar = document.getElementById('progressBar');
+      const progressText = document.getElementById('progressText');
+      const themeBtn = document.getElementById('themeBtn');
+      const modal = document.getElementById('modal');
+      const modalImage = document.getElementById('modalImage');
+
+      themeBtn.addEventListener('click', () => themeToggle());
+
+      uploadToggleBtn.addEventListener('click', () => {
+        formContainer.style.display = formContainer.style.display === 'block' ? 'none' : 'block';
+      });
+
+      // preview multiple files
+      inputFiles.addEventListener('change', (e) => {
+        previewRow.innerHTML = '';
+        const files = Array.from(e.target.files).slice(0, 20); // limit preview to 20
+        files.forEach(file => {
+          const r = new FileReader();
+          r.onload = (ev) => {
+            const img = document.createElement('img');
+            img.src = ev.target.result;
+            previewRow.appendChild(img);
+          };
+          r.readAsDataURL(file);
+        });
+      });
+
+      // submit handler
+      homeworkForm.addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const teacher = document.getElementById('teacherName').value.trim() || 'Unknown';
+        const subject = document.getElementById('subject').value.trim() || 'General';
+        const description = document.getElementById('description').value.trim();
+        const dueDate = document.getElementById('dueDate').value || '';
+        const files = Array.from(inputFiles.files || []);
+        const section = 'T3'; // enforced
+
+        // 1) create doc with metadata (no images yet)
+        const docRef = await addDoc(collection(db, 'homework'), {
+          teacher, subject, description, dueDate, section, createdAt: serverTimestamp(), images: []
+        });
+
+        // 2) if files exist, upload them and update doc
+        if (files.length > 0) {
+          // compute total bytes for aggregated progress
+          const totalBytes = files.reduce((s,f) => s + f.size, 0);
+          let bytesTransferred = 0;
+          progressBar.style.width = '0%';
+          progressText.textContent = `Uploading 0%`;
+          progressBar.parentElement.style.display = 'block';
+
+          // upload sequentially (or parallel); we'll upload sequentially to simplify aggregated accounting
+          const uploadedUrls = [];
+          for (const file of files) {
+            const storagePath = `homework/${docRef.id}/${Date.now()}_${file.name.replace(/\s/g,'_')}`;
+            const sRef = stRef(storage, storagePath);
+            const uploadTask = uploadBytesResumable(sRef, file);
+
+            // wrapper to await each file upload and listen progress
+            await new Promise((resolve, reject) => {
+              uploadTask.on('state_changed',
+                (snapshot) => {
+                  // update aggregated progress
+                  // bytesTransferredForThisFile = snapshot.bytesTransferred (but we must track per file - easier to use snapshot and approximate)
+                  // We'll calculate aggregated progress as (bytesTransferredSoFarWithoutThisFile + currentFileSnapshot)/totalBytes
+                  const currentFileTransferred = snapshot.bytesTransferred;
+                  // compute aggregated
+                  const percent = Math.round(((bytesTransferred + currentFileTransferred) / totalBytes) * 100);
+                  progressBar.style.width = percent + '%';
+                  progressText.textContent = `Uploading ${percent}%`;
+                },
+                (err) => { console.error('Upload error', err); reject(err); },
+                async () => {
+                  // file finished
+                  const url = await getDownloadURL(uploadTask.snapshot.ref);
+                  uploadedUrls.push(url);
+                  // add the bytes of this file to bytesTransferred so next file progress starts after it
+                  bytesTransferred += file.size;
+                  // update aggregated percent after file done
+                  const percentDone = Math.round((bytesTransferred / totalBytes) * 100);
+                  progressBar.style.width = percentDone + '%';
+                  progressText.textContent = `Uploading ${percentDone}%`;
+                  resolve();
+                }
+              );
+            });
+          } // end for files
+
+          // update doc with uploadedUrls
+          await updateDoc(doc(db, 'homework', docRef.id), { images: uploadedUrls });
+          progressBar.style.width = '100%';
+          progressText.textContent = `Upload complete`;
+          setTimeout(() => { progressBar.parentElement.style.display = 'none'; progressBar.style.width = '0%'; progressText.textContent = ''; }, 900);
+        } else {
+          // no images - immediate update handled earlier
+        }
+
+        // reset form
+        homeworkForm.reset();
+        previewRow.innerHTML = '';
+        formContainer.style.display = 'none';
+      });
+
+      // Real-time listener: show all docs in 'homework' ordered by createdAt desc
+      const q = query(collection(db,'homework'), orderBy('createdAt','desc'));
+      onSnapshot(q, async (snap) => {
+        // client-side cleanup: remove docs older than 10 days
+        const now = Date.now();
+        const TEN_DAYS_MS = 10*24*60*60*1000;
+        const toDelete = [];
+        const items = [];
+        snap.forEach(docSnap => {
+          const data = docSnap.data();
+          const createdAt = data.createdAt && data.createdAt.toMillis ? data.createdAt.toMillis() : (data.createdAt ? new Date(data.createdAt).getTime() : now);
+          if (now - createdAt > TEN_DAYS_MS) {
+            toDelete.push(docSnap.ref);
+          } else {
+            items.push({ id: docSnap.id, data });
+          }
+        });
+        // delete expired docs (best-effort; requires permission)
+        for (const dref of toDelete) {
+          try { await deleteDoc(dref); } catch(e){ console.warn('Could not delete expired doc (rules?)', e); }
+        }
+
+        // render items
+        hwList.innerHTML = items.length ? '' : '<div class="card">No assignments yet</div>';
+        items.forEach(item => {
+          const hw = item.data;
+          // ensure section is T3 (filter)
+          if (hw.section && hw.section !== 'T3') return;
+          const el = document.createElement('div');
+          el.className = 'card hw-card';
+          // images: show up to 4, last shows +X if more
+          let imagesHtml = '';
+          if (hw.images && hw.images.length > 0) {
+            const imgs = hw.images;
+            const maxShow = 4;
+            const shown = imgs.slice(0, maxShow);
+            imagesHtml = '<div class="hw-images">';
+            shown.forEach((src, idx) => {
+              if (idx === maxShow - 1 && imgs.length > maxShow) {
+                imagesHtml += `<div class="img-wrap" data-idx="${idx}" data-doc="${item.id}"><img src="${src}" alt="img"/><div class="more-overlay">+${imgs.length - (maxShow-1)} more</div></div>`;
+              } else {
+                imagesHtml += `<div class="img-wrap" data-idx="${idx}" data-doc="${item.id}"><img src="${src}" alt="img"/></div>`;
+              }
+            });
+            imagesHtml += '</div>';
+          }
+          const createdAtDisplay = hw.createdAt && hw.createdAt.toDate ? hw.createdAt.toDate().toLocaleString() : '';
+          el.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div><strong style="font-size:15px">${escapeHtml(hw.subject)}</strong></div>
+              <div class="hw-meta">${escapeHtml(createdAtDisplay)}</div>
+            </div>
+            <div class="hw-meta">By ${escapeHtml(hw.teacher)} | Due: ${escapeHtml(hw.dueDate || '—')}</div>
+            ${imagesHtml}
+            <div class="hw-desc">${escapeHtml(hw.description || '')}</div>
+          `;
+          hwList.appendChild(el);
+          // attach click handlers for images inside this card
+          const wrappers = el.querySelectorAll('.img-wrap');
+          wrappers.forEach(w => {
+            w.style.cursor = 'pointer';
+            w.addEventListener('click', () => {
+              const docId = w.getAttribute('data-doc');
+              // fetch doc images from snap data (we have item.data)
+              const allImgs = hw.images || [];
+              // open modal with first image index
+              const idx = parseInt(w.getAttribute('data-idx')||0,10);
+              openModal(allImgs, idx);
+            });
+          });
+        });
+      });
+
+      // Modal gallery functions
+      function openModal(images, startIndex=0) {
+        if (!images || images.length === 0) return;
+        modal.classList.add('open');
+        showModalImage(images, startIndex);
+        modal.dataset.images = JSON.stringify(images);
+        modal.dataset.index = startIndex;
+      }
+      function showModalImage(images, index) {
+        const idx = ((index % images.length) + images.length) % images.length;
+        modalImage.src = images[idx];
+        modal.dataset.index = idx;
+      }
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal || e.target.id === 'closeModal') {
+          modal.classList.remove('open');
+        } else {
+          // click left/right to navigate
+          const rect = modalImage.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          if (x < rect.width/2) {
+            // prev
+            const images = JSON.parse(modal.dataset.images || '[]');
+            let idx = parseInt(modal.dataset.index || '0',10);
+            idx = (idx - 1 + images.length) % images.length;
+            showModalImage(images, idx);
+          } else {
+            // next
+            const images = JSON.parse(modal.dataset.images || '[]');
+            let idx = parseInt(modal.dataset.index || '0',10);
+            idx = (idx + 1) % images.length;
+            showModalImage(images, idx);
+          }
+        }
+      });
+
+      // helper
+      function escapeHtml(str='') {
+        return String(str)
+          .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+          .replaceAll('"','&quot;').replaceAll("'","&#039;");
+      }
+    });
+  </script>
 </head>
 <body data-theme="dark">
-  <!-- Navbar -->
   <nav class="navbar">
-    <div class="nav-container">
-      <div class="nav-brand">
-        <i class="fas fa-graduation-cap"></i> T3_Base
-      </div>
-      <div class="nav-menu">
-        <button id="themeToggle"><i class="fas fa-adjust"></i></button>
-        <button id="uploadToggle"><i class="fas fa-upload"></i> Upload Homework</button>
+    <div class="nav-inner">
+      <div class="brand"><i class="fas fa-graduation-cap"></i> T3_Base</div>
+      <div class="right-controls">
+        <button id="themeBtn" class="ghost"><i class="fas fa-adjust"></i></button>
+        <button id="uploadToggle" class="btn"><i class="fas fa-upload"></i> Upload Homework</button>
       </div>
     </div>
   </nav>
 
-  <!-- Main -->
-  <main class="main-content">
-    <h1 class="page-title">Homework Manager (T3)</h1>
-    <p class="page-subtitle">Manage assignments with auto-expiry after 10 days</p>
+  <main>
+    <div class="hero">
+      <div>
+        <div class="title">Homework Manager — T3</div>
+        <div class="subtitle">Shared assignments — images supported. Items auto-expire after 10 days.</div>
+      </div>
+      <div style="text-align:right"></div>
+    </div>
 
-    <!-- Homework list -->
-    <div id="homeworkList" class="homework-list"></div>
+    <div class="layout">
+      <!-- Left: list -->
+      <section>
+        <div id="homeworkList" class="homework-list"></div>
+      </section>
 
-    <!-- Form (hidden until button click) -->
-    <div id="formContainer" class="form-card" style="display:none;">
-      <h3>Post Homework</h3>
-      <form id="homeworkForm">
-        <div class="form-group">
-          <label for="teacherName">Teacher Name</label>
-          <input type="text" id="teacherName" required />
+      <!-- Right: form -->
+      <aside>
+        <div id="formContainer" class="card" style="display:none">
+          <form id="homeworkForm" class="form">
+            <div class="field">
+              <label for="teacherName">Teacher Name</label>
+              <input id="teacherName" type="text" placeholder="e.g., Mrs. Sharma" />
+            </div>
+
+            <div class="field">
+              <label for="homeworkImages">Upload Images (you can select multiple)</label>
+              <input id="homeworkImages" type="file" accept="image/*" multiple />
+              <div id="previewRow" class="preview-row"></div>
+            </div>
+
+            <div class="field">
+              <label for="subject">Subject</label>
+              <input id="subject" type="text" placeholder="e.g., Mathematics" required />
+            </div>
+
+            <div class="field">
+              <label for="description">Description</label>
+              <textarea id="description" placeholder="Notes, page numbers, instructions..."></textarea>
+            </div>
+
+            <div class="field">
+              <label for="dueDate">Due Date</label>
+              <input id="dueDate" type="date" />
+            </div>
+
+            <div class="field">
+              <button type="submit" class="btn submit-btn">Submit</button>
+              <div style="height:10px"></div>
+              <div class="progress-wrap" style="display:none">
+                <div id="progressBar" class="progress-bar"></div>
+              </div>
+              <div id="progressText" class="progress-text"></div>
+            </div>
+          </form>
         </div>
-        <div class="form-group">
-          <label for="homeworkImages">Upload Images</label>
-          <input type="file" id="homeworkImages" accept="image/*" multiple />
-          <div id="previewContainer" class="preview-container"></div>
-        </div>
-        <div class="form-group">
-          <label for="subject">Subject</label>
-          <input type="text" id="subject" required />
-        </div>
-        <div class="form-group">
-          <label for="description">Description</label>
-          <textarea id="description" rows="4" required></textarea>
-        </div>
-        <div class="form-group">
-          <label for="dueDate">Due Date</label>
-          <input type="date" id="dueDate" required />
-        </div>
-        <div class="button-group">
-          <button type="submit" class="submit-btn">Submit</button>
-          <button type="reset" class="clear-btn">Clear</button>
-        </div>
-      </form>
+      </aside>
     </div>
   </main>
 
-  <!-- Footer -->
-  <footer class="footer">
+  <!-- modal gallery -->
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <img id="modalImage" src="" alt="preview" />
+    </div>
+  </div>
+
+  <footer>
     Homework Manager © T3_Base — Everyone can view & upload homework
   </footer>
-
-  <!-- Script -->
-  <script>
-    const themeToggle = document.getElementById("themeToggle");
-    const uploadToggle = document.getElementById("uploadToggle");
-    const formContainer = document.getElementById("formContainer");
-    const homeworkForm = document.getElementById("homeworkForm");
-    const homeworkList = document.getElementById("homeworkList");
-    const homeworkImages = document.getElementById("homeworkImages");
-    const previewContainer = document.getElementById("previewContainer");
-
-    // Theme toggle
-    themeToggle.addEventListener("click", () => {
-      const currentTheme = document.body.getAttribute("data-theme");
-      document.body.setAttribute("data-theme", currentTheme === "dark" ? "light" : "dark");
-    });
-
-    // Toggle upload form
-    uploadToggle.addEventListener("click", () => {
-      formContainer.style.display = formContainer.style.display === "none" ? "block" : "none";
-    });
-
-    // Multiple image preview
-    homeworkImages.addEventListener("change", (e) => {
-      previewContainer.innerHTML = "";
-      const files = Array.from(e.target.files);
-      files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          const img = document.createElement("img");
-          img.src = ev.target.result;
-          previewContainer.appendChild(img);
-        };
-        reader.readAsDataURL(file);
-      });
-    });
-
-    // Load homework from localStorage
-    const loadHomework = () => {
-      homeworkList.innerHTML = "";
-      const stored = JSON.parse(localStorage.getItem("homework")) || [];
-      const now = new Date();
-      const valid = stored.filter(hw => new Date(hw.createdAt).getTime() + 10*24*60*60*1000 > now.getTime());
-      localStorage.setItem("homework", JSON.stringify(valid));
-      valid.forEach(hw => {
-        const card = document.createElement("div");
-        card.className = "homework-card";
-
-        let imagesHTML = "";
-        if (hw.images && hw.images.length > 0) {
-          hw.images.slice(0,4).forEach((src, i) => {
-            if (i === 3 && hw.images.length > 4) {
-              imagesHTML += `
-                <div class="image-wrapper">
-                  <img src="${src}" />
-                  <div class="more-overlay">+${hw.images.length - 3} more</div>
-                </div>`;
-            } else {
-              imagesHTML += `<div class="image-wrapper"><img src="${src}" /></div>`;
-            }
-          });
-        }
-
-        card.innerHTML = `
-          <h4>${hw.subject}</h4>
-          <div class="homework-meta">By ${hw.teacher} | Due: ${hw.dueDate}</div>
-          <div class="homework-images">${imagesHTML}</div>
-          <p>${hw.description}</p>
-        `;
-        homeworkList.appendChild(card);
-      });
-    };
-
-    // Handle submit
-    homeworkForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const teacher = document.getElementById("teacherName").value;
-      const subject = document.getElementById("subject").value;
-      const description = document.getElementById("description").value;
-      const dueDate = document.getElementById("dueDate").value;
-
-      const files = Array.from(homeworkImages.files);
-      const readers = files.map(file => new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onload = (ev) => resolve(ev.target.result);
-        reader.readAsDataURL(file);
-      }));
-
-      Promise.all(readers).then(images => {
-        saveHomework(teacher, subject, description, dueDate, images);
-      });
-    });
-
-    function saveHomework(teacher, subject, description, dueDate, images) {
-      const hw = { teacher, subject, description, dueDate, images, createdAt: new Date() };
-      const stored = JSON.parse(localStorage.getItem("homework")) || [];
-      stored.push(hw);
-      localStorage.setItem("homework", JSON.stringify(stored));
-      homeworkForm.reset();
-      previewContainer.innerHTML = "";
-      formContainer.style.display = "none";
-      loadHomework();
-    }
-
-    // Init
-    loadHomework();
-  </script>
 </body>
 </html>
