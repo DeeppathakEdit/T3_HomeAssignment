@@ -164,4 +164,89 @@ document.addEventListener('DOMContentLoaded',()=>{
     snap.forEach(docSnap=>{
       const data=docSnap.data();
       const createdAt=data.createdAt&&data.createdAt.toMillis?data.createdAt.toMillis():now;
-     
+      if(now-createdAt>TEN_DAYS_MS) toDelete.push(docSnap.ref);
+      else items.push({id:docSnap.id,...data});
+    });
+    toDelete.forEach(d=>deleteDoc(d));
+    hwList.innerHTML='';
+    items.forEach(hw=>{
+      const card=document.createElement('div');card.className='card hw-card';
+      card.innerHTML=`<div class="hw-meta">${hw.teacher} • ${hw.subject} • ${hw.section} • Due: ${hw.dueDate||'N/A'}</div>
+      <div class="hw-desc">${hw.description||''}</div>
+      <div class="hw-images"></div>`;
+      const imagesDiv=card.querySelector('.hw-images');
+      if(hw.images&&hw.images.length>0){
+        hw.images.slice(0,4).forEach(url=>{
+          const imgWrap=document.createElement('div');imgWrap.className='img-wrap';
+          const img=document.createElement('img');img.src=url;
+          imgWrap.appendChild(img);
+          imgWrap.addEventListener('click',()=>{modal.classList.add('open');modalImage.src=url;});
+          imagesDiv.appendChild(imgWrap);
+        });
+        if(hw.images.length>4){
+          const more=document.createElement('div');more.className='img-wrap more-overlay';more.textContent=`+${hw.images.length-4}`;
+          imagesDiv.appendChild(more);
+        }
+      }
+      hwList.appendChild(card);
+    });
+  });
+
+  modal.addEventListener('click',()=>{modal.classList.remove('open');modalImage.src='';});
+});
+</script>
+</head>
+<body data-theme="dark">
+<nav class="navbar">
+<div class="nav-inner">
+  <div class="brand"><i class="fas fa-graduation-cap"></i> T3_Base</div>
+  <div class="right-controls">
+    <button id="themeBtn" class="btn"><i class="fas fa-adjust"></i> Theme</button>
+    <button id="uploadToggle" class="btn"><i class="fas fa-upload"></i> Upload Homework</button>
+  </div>
+</div>
+</nav>
+<main>
+<div class="hero">
+  <div>
+    <div class="title">Homework Manager</div>
+    <div class="subtitle">Upload and view all homework for T3</div>
+  </div>
+</div>
+
+<div id="formContainer" class="card form" style="display:none;margin-top:16px;">
+<form id="homeworkForm">
+  <div class="field">
+    <label for="homeworkImages">Upload Images</label>
+    <input type="file" id="homeworkImages" multiple accept="image/*">
+    <div id="previewRow" class="preview-row"></div>
+  </div>
+  <div class="field">
+    <label for="teacherName">Teacher's Name</label>
+    <input type="text" id="teacherName" required>
+  </div>
+  <div class="field">
+    <label for="subject">Subject</label>
+    <input type="text" id="subject" required>
+  </div>
+  <div class="field">
+    <label for="description">Description</label>
+    <textarea id="description"></textarea>
+  </div>
+  <div class="field">
+    <label for="dueDate">Due Date</label>
+    <input type="date" id="dueDate">
+  </div>
+  <div class="progress-wrap"><div id="progressBar" class="progress-bar"></div></div>
+  <div class="progress-text" id="progressText"></div>
+  <button type="submit" class="btn"><i class="fas fa-save"></i> Submit</button>
+</form>
+</div>
+
+<div class="homework-list" id="homeworkList" style="margin-top:20px;"></div>
+
+</main>
+<div id="modal" class="modal"><div class="modal-content"><img id="modalImage" src="" alt=""></div></div>
+<footer>&copy; 2025 T3_Base</footer>
+</body>
+</html>
