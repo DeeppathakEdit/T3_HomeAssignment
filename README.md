@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -62,7 +62,7 @@
         <i class="fas fa-graduation-cap"></i> StudySync T3
       </div>
       <div class="nav-menu">
-        <button id="loginBtn"><i class="fas fa-user"></i> Login</button>
+        <button id="loginBtn"><i class="fas fa-user"></i> Upload Homework</button>
       </div>
     </div>
   </nav>
