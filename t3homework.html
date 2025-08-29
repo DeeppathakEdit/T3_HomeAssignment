@@ -51,6 +51,8 @@
     .homework-card:hover { transform: translateY(-3px); }
     .homework-card h4 { margin-bottom: .5rem; }
     .homework-meta { font-size: .9rem; color: var(--text-muted); margin-bottom: .5rem; }
+    .homework-images { display: flex; flex-wrap: wrap; gap: .5rem; margin: .5rem 0; }
+    .homework-images img { max-width: 120px; border-radius: 8px; }
 
     .form-card { background: var(--card); padding: 1.5rem; border-radius: 12px; margin-top: 2rem; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
     .form-group { margin-bottom: 1rem; }
@@ -65,7 +67,8 @@
     .clear-btn { background: #888; color: white; }
     .clear-btn:hover { opacity: 0.9; }
 
-    .preview-img { max-width: 100%; margin-top: .5rem; border-radius: 8px; display: none; }
+    .preview-container { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .5rem; }
+    .preview-container img { max-width: 120px; border-radius: 8px; }
 
     /* Footer */
     .footer { background: var(--card); padding: 1rem; text-align: center; font-size: .9rem; color: var(--text-muted); margin-top: auto; }
@@ -109,9 +112,9 @@
           <input type="text" id="teacherName" required />
         </div>
         <div class="form-group">
-          <label for="homeworkImage">Upload Image</label>
-          <input type="file" id="homeworkImage" accept="image/*" />
-          <img id="previewImage" class="preview-img" />
+          <label for="homeworkImages">Upload Images</label>
+          <input type="file" id="homeworkImages" accept="image/*" multiple />
+          <div id="previewContainer" class="preview-container"></div>
         </div>
         <div class="form-group">
           <label for="subject">Subject</label>
@@ -145,8 +148,8 @@
     const formContainer = document.getElementById("formContainer");
     const homeworkForm = document.getElementById("homeworkForm");
     const homeworkList = document.getElementById("homeworkList");
-    const homeworkImage = document.getElementById("homeworkImage");
-    const previewImage = document.getElementById("previewImage");
+    const homeworkImages = document.getElementById("homeworkImages");
+    const previewContainer = document.getElementById("previewContainer");
 
     // Theme toggle
     themeToggle.addEventListener("click", () => {
@@ -159,19 +162,19 @@
       formContainer.style.display = formContainer.style.display === "none" ? "block" : "none";
     });
 
-    // Image preview
-    homeworkImage.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (file) {
+    // Multiple image preview
+    homeworkImages.addEventListener("change", (e) => {
+      previewContainer.innerHTML = "";
+      const files = Array.from(e.target.files);
+      files.forEach(file => {
         const reader = new FileReader();
         reader.onload = (ev) => {
-          previewImage.src = ev.target.result;
-          previewImage.style.display = "block";
+          const img = document.createElement("img");
+          img.src = ev.target.result;
+          previewContainer.appendChild(img);
         };
         reader.readAsDataURL(file);
-      } else {
-        previewImage.style.display = "none";
-      }
+      });
     });
 
     // Load homework from localStorage
@@ -181,13 +184,14 @@
       const now = new Date();
       const valid = stored.filter(hw => new Date(hw.createdAt).getTime() + 10*24*60*60*1000 > now.getTime());
       localStorage.setItem("homework", JSON.stringify(valid));
-      valid.forEach((hw, index) => {
+      valid.forEach(hw => {
         const card = document.createElement("div");
         card.className = "homework-card";
+        const imagesHTML = hw.images.map(src => `<img src="${src}" />`).join("");
         card.innerHTML = `
           <h4>${hw.subject}</h4>
           <div class="homework-meta">By ${hw.teacher} | Due: ${hw.dueDate}</div>
-          ${hw.image ? `<img src="${hw.image}" class="preview-img" style="display:block;" />` : ""}
+          <div class="homework-images">${imagesHTML}</div>
           <p>${hw.description}</p>
         `;
         homeworkList.appendChild(card);
@@ -202,26 +206,25 @@
       const description = document.getElementById("description").value;
       const dueDate = document.getElementById("dueDate").value;
 
-      let image = "";
-      if (homeworkImage.files[0]) {
+      const files = Array.from(homeworkImages.files);
+      const readers = files.map(file => new Promise(resolve => {
         const reader = new FileReader();
-        reader.onload = (ev) => {
-          image = ev.target.result;
-          saveHomework(teacher, subject, description, dueDate, image);
-        };
-        reader.readAsDataURL(homeworkImage.files[0]);
-      } else {
-        saveHomework(teacher, subject, description, dueDate, image);
-      }
+        reader.onload = (ev) => resolve(ev.target.result);
+        reader.readAsDataURL(file);
+      }));
+
+      Promise.all(readers).then(images => {
+        saveHomework(teacher, subject, description, dueDate, images);
+      });
     });
 
-    function saveHomework(teacher, subject, description, dueDate, image) {
-      const hw = { teacher, subject, description, dueDate, image, createdAt: new Date() };
+    function saveHomework(teacher, subject, description, dueDate, images) {
+      const hw = { teacher, subject, description, dueDate, images, createdAt: new Date() };
       const stored = JSON.parse(localStorage.getItem("homework")) || [];
       stored.push(hw);
       localStorage.setItem("homework", JSON.stringify(stored));
       homeworkForm.reset();
-      previewImage.style.display = "none";
+      previewContainer.innerHTML = "";
       formContainer.style.display = "none";
       loadHomework();
     }
