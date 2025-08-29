@@ -1,232 +1,82 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>T3_Base - Homework Manager</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-<style>
-:root{
-  --bg-dark:#121216; --bg-light:#f4f6f8;
-  --card-dark:#17171a; --card-light:#ffffff;
-  --text-dark:#eaeaea; --text-light:#111827;
-  --muted:#9aa1ab; --accent:#2563eb;
-}
-[data-theme="dark"] { --bg:var(--bg-dark); --card:var(--card-dark); --text:var(--text-dark);}
-[data-theme="light"] { --bg:var(--bg-light); --card:var(--card-light); --text:var(--text-light);}
-*{box-sizing:border-box;}
-body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
-.navbar{background:var(--card);position:sticky;top:0;z-index:2000;padding:14px 18px;box-shadow:0 1px 6px rgba(0,0,0,.15);}
-.nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
-.brand{display:flex;align-items:center;gap:10px;font-weight:700;cursor:default;}
-.brand i{font-size:20px;}
-.right-controls{display:flex;align-items:center;gap:8px;}
-.btn{background:var(--accent);color:#fff;padding:8px 12px;border-radius:8px;border:none;cursor:pointer;display:inline-flex;gap:8px;align-items:center;pointer-events:auto;}
-.btn:hover{opacity:.9;}
-main{max-width:1100px;margin:20px auto;padding:0 16px;flex:1;width:100%;}
-.hero{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
-.title{font-size:1.6rem;font-weight:700;}
-.subtitle{color:var(--muted);margin-top:6px;}
-.card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.15);}
-.homework-list{display:grid;gap:12px;margin-top:20px;}
-.hw-card{display:flex;flex-direction:column;gap:8px;}
-.hw-meta{color:var(--muted);font-size:13px;}
-.hw-images{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
-.hw-images .img-wrap{position:relative;width:120px;height:84px;overflow:hidden;border-radius:8px;background:#222;display:flex;align-items:center;justify-content:center;cursor:pointer;}
-.hw-images img{width:100%;height:100%;object-fit:cover;display:block;}
-.more-overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;transition:0.3s;}
-.more-overlay:hover{background:rgba(0,0,0,.8);}
-.hw-desc{white-space:pre-wrap;color:var(--text);font-size:14px;}
-.form .field{margin-bottom:10px;}
-label{display:block;margin-bottom:6px;color:var(--muted);font-size:13px;}
-input[type="text"],input[type="date"],textarea{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(0,0,0,.15);background:transparent;color:var(--text);}
-textarea{min-height:92px;resize:vertical;}
-input[type=file]{display:block;}
-.preview-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
-.preview-row img{width:80px;height:56px;object-fit:cover;border-radius:6px;}
-.progress-wrap{margin-top:8px;background:rgba(0,0,0,.12);border-radius:8px;overflow:hidden;height:12px;display:none;}
-.progress-bar{height:100%;width:0%;background:var(--accent);transition:width .2s;}
-.progress-text{font-size:13px;color:var(--muted);margin-top:6px;}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:2500;cursor:pointer;}
-.modal.open{display:flex;}
-.modal .modal-content{max-width:90vw;max-height:90vh;background:transparent;display:flex;align-items:center;justify-content:center;}
-.modal img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;}
-@media(max-width:600px){.hw-images .img-wrap{width:80px;height:56px;}}
-</style>
-</head>
-<body data-theme="dark">
-
-<nav class="navbar">
-  <div class="nav-inner">
-    <div class="brand"><i class="fas fa-graduation-cap"></i> T3_Base</div>
-    <div class="right-controls">
-      <button id="themeBtn" class="btn"><i class="fas fa-adjust"></i> Theme</button>
-      <button id="uploadToggle" class="btn"><i class="fas fa-upload"></i> Upload Homework</button>
-    </div>
-  </div>
-</nav>
-
-<main>
-  <div class="hero">
-    <div>
-      <div class="title">Homework Manager</div>
-      <div class="subtitle">Upload and view all homework for T3</div>
-    </div>
-  </div>
-
-  <div id="formContainer" class="card form" style="display:none;margin-top:16px;position:relative;z-index:100;">
-    <form id="homeworkForm">
-      <div class="field">
-        <label for="homeworkImages">Upload Images</label>
-        <input type="file" id="homeworkImages" multiple accept="image/*">
-        <div id="previewRow" class="preview-row"></div>
-      </div>
-      <div class="field">
-        <label for="teacherName">Teacher's Name</label>
-        <input type="text" id="teacherName" required>
-      </div>
-      <div class="field">
-        <label for="subject">Subject</label>
-        <input type="text" id="subject" required>
-      </div>
-      <div class="field">
-        <label for="description">Description</label>
-        <textarea id="description"></textarea>
-      </div>
-      <div class="field">
-        <label for="dueDate">Due Date</label>
-        <input type="date" id="dueDate">
-      </div>
-      <div class="progress-wrap"><div id="progressBar" class="progress-bar"></div></div>
-      <div class="progress-text" id="progressText"></div>
-      <button type="submit" class="btn"><i class="fas fa-save"></i> Submit</button>
-    </form>
-  </div>
-
-  <div class="homework-list" id="homeworkList"></div>
-</main>
-
-<div id="modal" class="modal">
-  <div class="modal-content"><img id="modalImage" src="" alt=""></div>
-</div>
-
-<footer>&copy; 2025 T3_Base</footer>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-document.addEventListener('DOMContentLoaded',()=>{
-  const themeBtn=document.getElementById('themeBtn');
-  const uploadToggleBtn=document.getElementById('uploadToggle');
-  const formContainer=document.getElementById('formContainer');
-  const homeworkForm=document.getElementById('homeworkForm');
-  const previewRow=document.getElementById('previewRow');
-  const inputFiles=document.getElementById('homeworkImages');
-  const hwList=document.getElementById('homeworkList');
-  const progressBar=document.getElementById('progressBar');
-  const progressText=document.getElementById('progressText');
-  const modal=document.getElementById('modal');
-  const modalImage=document.getElementById('modalImage');
+import { neon } from '@netlify/neon';
+const sql = neon(); // automatically uses env NETLIFY_DATABASE_URL
+const [post] = await sql`SELECT * FROM posts WHERE id = ${postId}`;
 
-  let homeworkData=[];
+const homeworkForm = document.getElementById('homeworkForm');
+const inputFiles = document.getElementById('homeworkImages');
+const hwList = document.getElementById('homeworkList');
 
-  // Dark/Light toggle
-  themeBtn.addEventListener('click',()=>{
-    document.body.setAttribute('data-theme',document.body.getAttribute('data-theme')==='dark'?'light':'dark');
-  });
+homeworkForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-  // Show/Hide form
-  uploadToggleBtn.addEventListener('click',()=>{formContainer.style.display=formContainer.style.display==='block'?'none':'block';});
+  const teacher = document.getElementById('teacherName').value.trim();
+  const subject = document.getElementById('subject').value.trim();
+  const description = document.getElementById('description').value.trim();
+  const dueDate = document.getElementById('dueDate').value;
+  const files = Array.from(inputFiles.files);
 
-  // Preview images
-  inputFiles.addEventListener('change',(e)=>{
-    previewRow.innerHTML='';
-    Array.from(e.target.files).slice(0,20).forEach(file=>{
-      const r=new FileReader();
-      r.onload=(ev)=>{
-        const img=document.createElement('img');
-        img.src=ev.target.result;
-        previewRow.appendChild(img);
-      };
-      r.readAsDataURL(file);
-    });
-  });
+  const imageUrls = [];
 
-  // Submit homework
-  homeworkForm.addEventListener('submit',(e)=>{
-    e.preventDefault();
-    const teacher=document.getElementById('teacherName').value.trim()||'Unknown';
-    const subject=document.getElementById('subject').value.trim()||'General';
-    const description=document.getElementById('description').value.trim();
-    const dueDate=document.getElementById('dueDate').value||'';
-    const files=Array.from(inputFiles.files||[]);
+  for (const file of files) {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const { data, error } = await supabase.storage
+      .from('homework-images')
+      .upload(fileName, file);
 
-    const images=[];
-    progressBar.style.width='0%';
-    progressText.textContent='Uploading 0%';
-    progressBar.parentElement.style.display='block';
+    if (error) { alert(error.message); return; }
 
-    let uploaded=0;
-    if(files.length>0){
-      files.forEach((file,i)=>{
-        const reader=new FileReader();
-        reader.onload=(ev)=>{
-          images.push(ev.target.result);
-          uploaded++;
-          const percent=Math.round((uploaded/files.length)*100);
-          progressBar.style.width=percent+'%';
-          progressText.textContent=`Uploading ${percent}%`;
-          if(uploaded===files.length){
-            finishSubmit();
-          }
-        };
-        reader.readAsDataURL(file);
-      });
-    }else finishSubmit();
-
-    function finishSubmit(){
-      progressBar.parentElement.style.display='none';
-      progressBar.style.width='0%';
-      progressText.textContent='';
-      const hwItem={teacher,subject,description,dueDate,section:'T3',images,createdAt:Date.now()};
-      homeworkData.unshift(hwItem);
-      renderHomework();
-      homeworkForm.reset();
-      previewRow.innerHTML='';
-      formContainer.style.display='none';
-    }
-  });
-
-  function renderHomework(){
-    hwList.innerHTML='';
-    const TEN_DAYS_MS=10*24*60*60*1000;
-    const now=Date.now();
-    homeworkData=homeworkData.filter(h=>now-h.createdAt<TEN_DAYS_MS);
-    homeworkData.forEach(hw=>{
-      const card=document.createElement('div');
-      card.className='card hw-card';
-      card.innerHTML=`<div class="hw-meta">${hw.teacher} • ${hw.subject} • ${hw.section} • Due: ${hw.dueDate||'N/A'}</div>
-      <div class="hw-desc">${hw.description||''}</div>
-      <div class="hw-images"></div>`;
-      const imagesDiv=card.querySelector('.hw-images');
-      if(hw.images.length>0){
-        hw.images.slice(0,4).forEach(url=>{
-          const imgWrap=document.createElement('div');imgWrap.className='img-wrap';
-          const img=document.createElement('img');img.src=url;
-          imgWrap.appendChild(img);
-          imgWrap.addEventListener('click',()=>{modal.classList.add('open');modalImage.src=url;});
-          imagesDiv.appendChild(imgWrap);
-        });
-        if(hw.images.length>4){
-          const more=document.createElement('div');more.className='img-wrap more-overlay';more.textContent=`+${hw.images.length-4}`;
-          imagesDiv.appendChild(more);
-        }
-      }
-      hwList.appendChild(card);
-    });
+    const { publicUrl } = supabase.storage.from('homework-images').getPublicUrl(fileName);
+    imageUrls.push(publicUrl);
   }
 
-  modal.addEventListener('click',()=>{modal.classList.remove('open');modalImage.src='';});
-});
-</script>
+  const { data, error } = await supabase.from('homework').insert([{
+    teacher, subject, description, due_date: dueDate, section: 'T3', images: imageUrls
+  }]);
 
-</body>
-</html>
+  if (error) alert(error.message);
+  else {
+    homeworkForm.reset();
+    loadHomework(); // reload all homework
+  }
+});
+
+async function loadHomework() {
+  const { data: homework, error } = await supabase
+    .from('homework')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) return console.error(error);
+  hwList.innerHTML = '';
+
+  homework.forEach(hw => {
+    const card = document.createElement('div');
+    card.className = 'card hw-card';
+    card.innerHTML = `<div class="hw-meta">${hw.teacher} • ${hw.subject} • ${hw.section} • Due: ${hw.due_date||'N/A'}</div>
+      <div class="hw-desc">${hw.description}</div>
+      <div class="hw-images"></div>`;
+
+    const imagesDiv = card.querySelector('.hw-images');
+    hw.images.slice(0,4).forEach(url => {
+      const imgWrap = document.createElement('div');
+      imgWrap.className='img-wrap';
+      const img = document.createElement('img'); img.src=url;
+      imgWrap.appendChild(img);
+      imagesDiv.appendChild(imgWrap);
+    });
+    if(hw.images.length>4){
+      const more=document.createElement('div');
+      more.className='img-wrap more-overlay';
+      more.textContent=`+${hw.images.length-4}`;
+      imagesDiv.appendChild(more);
+    }
+    hwList.appendChild(card);
+  });
+}
+
+// load all homework on page load
+loadHomework();
+</script>
