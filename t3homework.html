@@ -1,82 +1,188 @@
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T3_Base - Homework Manager</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+:root {
+  --bg-dark: #121216; --bg-light: #f4f6f8;
+  --card-dark: #17171a; --card-light: #ffffff;
+  --text-dark: #eaeaea; --text-light: #111827;
+  --muted: #9aa1ab; --accent: #2563eb;
+}
+[data-theme="dark"] { --bg: var(--bg-dark); --card: var(--card-dark); --text: var(--text-dark); }
+[data-theme="light"] { --bg: var(--bg-light); --card: var(--card-light); --text: var(--text-light); }
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; font-family: Inter, sans-serif; background: var(--bg); color: var(--text);
+  min-height: 100vh; display: flex; flex-direction: column;
+}
+.navbar {
+  background: var(--card); padding: 14px 18px; box-shadow: 0 1px 6px rgba(0,0,0,.15);
+  position: sticky; top: 0; z-index: 1000;
+}
+.nav-inner {
+  max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.brand { font-weight: 700; display: flex; gap: 8px; align-items: center; }
+.btn {
+  background: var(--accent); color: white; border: none; border-radius: 8px; padding: 8px 12px;
+  cursor: pointer; font-size: 14px;
+}
+.btn:hover { opacity: 0.9; }
+main { max-width: 1100px; margin: 20px auto; padding: 0 16px; flex: 1; width: 100%; }
+.card {
+  background: var(--card); padding: 14px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,.15);
+}
+.homework-list { display: grid; gap: 12px; margin-top: 20px; }
+.hw-images { display: flex; flex-wrap: wrap; gap: 8px; }
+.hw-images .img-wrap {
+  position: relative; width: 120px; height: 84px; border-radius: 8px; overflow: hidden;
+  background: #222; display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.hw-images img { width: 100%; height: 100%; object-fit: cover; }
+.more-overlay {
+  position: absolute; inset: 0; background: rgba(0,0,0,.6); color: white; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+}
+.progress-wrap {
+  margin-top: 8px; background: rgba(0,0,0,.2); border-radius: 8px; overflow: hidden; height: 10px; display: none;
+}
+.progress-bar { height: 100%; width: 0%; background: var(--accent); transition: width .2s; }
+</style>
+</head>
+<body data-theme="dark">
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <div class="brand"><i class="fas fa-graduation-cap"></i> T3_Base</div>
+    <div>
+      <button id="themeBtn" class="btn"><i class="fas fa-adjust"></i> Theme</button>
+      <button id="uploadToggle" class="btn"><i class="fas fa-upload"></i> Upload Homework</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div id="formContainer" class="card" style="display: none; margin-top: 16px;">
+    <form id="homeworkForm">
+      <label>Upload Images</label>
+      <input type="file" id="homeworkImages" multiple accept="image/*"><br>
+      <label>Teacher</label>
+      <input type="text" id="teacherName" required><br>
+      <label>Subject</label>
+      <input type="text" id="subject" required><br>
+      <label>Description</label>
+      <textarea id="description"></textarea><br>
+      <label>Due Date</label>
+      <input type="date" id="dueDate"><br>
+      <div class="progress-wrap"><div id="progressBar" class="progress-bar"></div></div>
+      <button type="submit" class="btn">Submit</button>
+    </form>
+  </div>
+<form id="homeworkForm" enctype="multipart/form-data">
+  <!-- previous fields ... -->
+  <div class="field">
+    <label for="photos">Upload Photos</label>
+    <input type="file" id="photos" name="photos" multiple accept="image/*">
+  </div>
+  <button type="submit" class="btn"><i class="fas fa-save"></i> Submit</button>
+</form>
+
+
+  <div id="homeworkList" class="homework-list"></div>
+</main>
+
 <script>
-import { neon } from '@netlify/neon';
-const sql = neon(); // automatically uses env NETLIFY_DATABASE_URL
-const [post] = await sql`SELECT * FROM posts WHERE id = ${postId}`;
+document.addEventListener('DOMContentLoaded', ()=>{
+  const themeBtn = document.getElementById('themeBtn');
+  const uploadToggle = document.getElementById('uploadToggle');
+  const formContainer = document.getElementById('formContainer');
+  const homeworkForm = document.getElementById('homeworkForm');
+  const hwList = document.getElementById('homeworkList');
+  const inputFiles = document.getElementById('homeworkImages');
+  const progressWrap = document.querySelector('.progress-wrap');
+  const progressBar = document.getElementById('progressBar');
 
-const homeworkForm = document.getElementById('homeworkForm');
-const inputFiles = document.getElementById('homeworkImages');
-const hwList = document.getElementById('homeworkList');
+  let homeworkData = [];
 
-homeworkForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
+  themeBtn.onclick = ()=> {
+    document.body.setAttribute('data-theme',
+      document.body.getAttribute('data-theme')==='dark' ? 'light' : 'dark');
+  };
 
-  const teacher = document.getElementById('teacherName').value.trim();
-  const subject = document.getElementById('subject').value.trim();
-  const description = document.getElementById('description').value.trim();
-  const dueDate = document.getElementById('dueDate').value;
-  const files = Array.from(inputFiles.files);
+  uploadToggle.onclick = ()=> {
+    formContainer.style.display = formContainer.style.display === 'none' ? 'block' : 'none';
+  };
 
-  const imageUrls = [];
+  homeworkForm.onsubmit = (e)=> {
+    e.preventDefault();
+    const teacher = document.getElementById('teacherName').value.trim();
+    const subject = document.getElementById('subject').value.trim();
+    const description = document.getElementById('description').value.trim();
+    const dueDate = document.getElementById('dueDate').value;
+    const files = Array.from(inputFiles.files);
 
-  for (const file of files) {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const { data, error } = await supabase.storage
-      .from('homework-images')
-      .upload(fileName, file);
+    progressWrap.style.display = 'block';
+    let uploaded = 0, images = [];
 
-    if (error) { alert(error.message); return; }
+    if(files.length === 0){
+      finish();
+    } else {
+      files.forEach(file=>{
+        const reader = new FileReader();
+        reader.onload = (ev)=>{
+          images.push(ev.target.result);
+          uploaded++;
+          progressBar.style.width = Math.round((uploaded/files.length)*100)+'%';
+          if(uploaded === files.length) finish();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
 
-    const { publicUrl } = supabase.storage.from('homework-images').getPublicUrl(fileName);
-    imageUrls.push(publicUrl);
-  }
+    function finish(){
+      homeworkData.unshift({teacher, subject, description, dueDate, images});
+      renderHomework();
+      homeworkForm.reset();
+      formContainer.style.display = 'none';
+      progressWrap.style.display = 'none';
+      progressBar.style.width = '0%';
+    }
+  };
 
-  const { data, error } = await supabase.from('homework').insert([{
-    teacher, subject, description, due_date: dueDate, section: 'T3', images: imageUrls
-  }]);
-
-  if (error) alert(error.message);
-  else {
-    homeworkForm.reset();
-    loadHomework(); // reload all homework
+  function renderHomework(){
+    hwList.innerHTML = '';
+    homeworkData.forEach(hw=>{
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = `
+        <div><strong>${hw.subject}</strong> by ${hw.teacher} (Due: ${hw.dueDate || 'N/A'})</div>
+        <div>${hw.description}</div>
+        <div class="hw-images"></div>`;
+      const imgDiv = div.querySelector('.hw-images');
+      hw.images.slice(0,4).forEach(url=>{
+        const wrap = document.createElement('div');
+        wrap.className = 'img-wrap';
+        const img = document.createElement('img');
+        img.src = url;
+        wrap.appendChild(img);
+        imgDiv.appendChild(wrap);
+      });
+      if(hw.images.length > 4){
+        const more = document.createElement('div');
+        more.className = 'img-wrap more-overlay';
+        more.textContent = `+${hw.images.length-4}`;
+        imgDiv.appendChild(more);
+      }
+      hwList.appendChild(div);
+    });
   }
 });
-
-async function loadHomework() {
-  const { data: homework, error } = await supabase
-    .from('homework')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (error) return console.error(error);
-  hwList.innerHTML = '';
-
-  homework.forEach(hw => {
-    const card = document.createElement('div');
-    card.className = 'card hw-card';
-    card.innerHTML = `<div class="hw-meta">${hw.teacher} • ${hw.subject} • ${hw.section} • Due: ${hw.due_date||'N/A'}</div>
-      <div class="hw-desc">${hw.description}</div>
-      <div class="hw-images"></div>`;
-
-    const imagesDiv = card.querySelector('.hw-images');
-    hw.images.slice(0,4).forEach(url => {
-      const imgWrap = document.createElement('div');
-      imgWrap.className='img-wrap';
-      const img = document.createElement('img'); img.src=url;
-      imgWrap.appendChild(img);
-      imagesDiv.appendChild(imgWrap);
-    });
-    if(hw.images.length>4){
-      const more=document.createElement('div');
-      more.className='img-wrap more-overlay';
-      more.textContent=`+${hw.images.length-4}`;
-      imagesDiv.appendChild(more);
-    }
-    hwList.appendChild(card);
-  });
-}
-
-// load all homework on page load
-loadHomework();
 </script>
+
+</body>
+</html>
